@@ -2,12 +2,12 @@
 // where your node app starts
 
 // init project
-var express = require("express");
-var app = express();
+const express = require("express");
+const app = express();
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
 // so that your API is remotely testable by FCC
-var cors = require("cors");
+const cors = require("cors");
 app.use(cors({ optionsSuccessStatus: 200 })); // some legacy browsers choke on 204
 
 // http://expressjs.com/en/starter/static-files.html
@@ -23,17 +23,22 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
 
-app.get("/api/:date", function (req, res) {
-  let date = req.params.date;
-  if (date.includes("-")) {
+app.get("/api/:date?", function (req, res) {
+  const dateParam = new Date(req.params.date);
+  const unixTime = dateParam.getTime();
+
+  if (isNaN(unixTime)) {
+    res.json({ error: "Invalid Date" });
+  } else if (req.params.date.includes("-")) {
     res.json({
-      unix: new Date(date).getTime(),
-      utc: new Date(date).toUTCString(),
+      unix: unixTime,
+      utc: dateParam.toUTCString(),
     });
   } else {
+    const dateFromUnix = new Date(parseInt(req.params.date));
     res.json({
-      unix: new Date(parseInt(date)).getTime(),
-      utc: new Date(parseInt(date)).toUTCString(),
+      unix: dateFromUnix.getTime(),
+      utc: dateFromUnix.toUTCString(),
     });
   }
 });
