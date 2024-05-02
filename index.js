@@ -24,24 +24,77 @@ app.get("/api/hello", function (req, res) {
 });
 
 app.get("/api/:date?", function (req, res) {
-  const dateParam = new Date(req.params.date);
-  const unixTime = dateParam.getTime();
-
-  if (isNaN(unixTime)) {
-    res.json({ error: "Invalid Date" });
-  } else if (req.params.date.includes("-")) {
+  const date = req.params.date;
+  if (!date) {
     res.json({
-      unix: unixTime,
-      utc: dateParam.toUTCString(),
+      unix: new Date().getTime(),
+      utc: new Date().toUTCString(),
     });
   } else {
-    const dateFromUnix = new Date(parseInt(req.params.date));
-    res.json({
-      unix: dateFromUnix.getTime(),
-      utc: dateFromUnix.toUTCString(),
-    });
+    const parsedDate = isNaN(Date.parse(date)) ? new Date(parseInt(date)) : new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      res.json({ error: "Invalid Date" });
+    } else {
+      res.json({
+        unix: parsedDate.getTime(),
+        utc: parsedDate.toUTCString(),
+      });
+    }
   }
 });
+
+
+// app.get("/api/:date?", function (req, res) {
+//   const date = req.params.date
+//   //falta data
+//   if (!date) {
+//     res.json({
+//       unix: new Date().getTime(),
+//       utc: new Date().toUTCString(),
+//     });
+// } else if (isNaN(parseInt(date))) {
+//     res.json({ error: "Invalid Date" });
+//   } else if (date.includes("-")) {
+//     res.json({
+//       unix: new Date(date).getTime(),
+//       utc: new Date(date).toUTCString(),
+//     });
+//   } else {
+//     res.json({
+//       unix: new Date(parseInt(date)).getTime(),
+//       utc: new Date(parseInt(date)).toUTCString(),
+//     });
+
+ 
+//   }
+// });
+
+
+
+// app.get("/api/:date?", function (req, res) {
+//   let dateParam = req.params.date;
+
+//   // If dateParam is not provided, use the current date
+//   if (!dateParam) {
+//     dateParam = new Date();
+//   } else {
+//     // Try parsing dateParam as a date string
+//     const date = new Date(dateParam);
+
+//     // Check if the parsed date is valid
+//     if (isNaN(date.getTime())) {
+//       return res.json({ error: "Invalid Date" });
+//     }
+
+//     dateParam = date;
+//   }
+
+  // Respond with the UNIX timestamp and UTC string representation of the date
+//   res.json({
+//     unix: dateParam.getTime(),
+//     utc: dateParam.toUTCString(),
+//   });
+// });
 
 // Listen on port set in environment variable or default to 3000
 const listener = app.listen(process.env.PORT || 3000, function () {
